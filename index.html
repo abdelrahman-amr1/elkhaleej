@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم الفاتورة - شركة الخليج</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #111111;
+            --gold-color: #dcb360;
+            --text-light: #ffffff;
+            --border-color: #555555;
+            --dashboard-bg: #181818;
+            --input-bg: #222222;
+            --input-border: #444444;
+            --accent-color: #e5c17d;
+            --danger-color: #ff4d4d;
+            --success-color: #2ecc71;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #1e1e1e;
+            margin: 0;
+            padding: 0;
+            color: var(--text-light);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* App Layout */
+        .app-container {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* Control Panel (Right Side) */
+        .editor-panel {
+            width: 450px;
+            background-color: var(--dashboard-bg);
+            border-left: 1px solid #2d2d2d;
+            padding: 25px;
+            overflow-y: auto;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+        }
+
+        /* Live Preview (Left Side) */
+        .preview-panel {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-y: auto;
+            background-color: #252525;
+            background-image: radial-gradient(circle, #333333 10%, transparent 11%);
+            background-size: 20px 20px;
+        }
+
+        /* Invoice Container */
+        .invoice-container {
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            width: 100%;
+            max-width: 800px;
+            padding: 40px 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            position: relative;
+            overflow: hidden;
+            background-image: radial-gradient(circle at top left, #2a2515 0%, #111111 40%);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        /* Watermark */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 70px;
+            font-weight: bold;
+            color: rgba(220, 179, 96, 0.04);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 0;
+            border: 5px solid rgba(220, 179, 96, 0.04);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-section {
+            width: 200px;
+        }
+
+        .logo-section img {
+            width: 100%;
+            max-width: 180px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .title-section {
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .title-section h1 {
+            color: var(--gold-color);
+            font-size: 55px;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .info-section {
+            text-align: right;
+            margin-top: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .info-row {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .info-row span.label {
+            color: var(--text-light);
+            margin-left: 10px;
+        }
+
+        .info-row span.value {
+            color: var(--gold-color);
+            font-weight: bold;
+        }
+
+        .contact-info {
+            text-align: left;
+            direction: ltr;
+            margin-top: -30px;
+            font-size: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        thead {
+            border-top: 1px solid var(--text-light);
+            border-bottom: 1px solid var(--text-light);
+        }
+
+        th {
+            padding: 15px 10px;
+            text-align: right;
+            font-weight: normal;
+        }
+
+        td {
+            padding: 15px 10px;
+            text-align: right;
+        }
+
+        .total-section {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--text-light);
+            border-bottom: 1px solid var(--text-light);
+            padding: 15px 10px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            position: relative;
+            z-index: 1;
+        }
+
+        .thank-you-msg {
+            max-width: 60%;
+        }
+
+        .cursive-text {
+            font-family: 'Great Vibes', cursive;
+            color: var(--gold-color);
+            font-size: 45px;
+            margin-bottom: 10px;
+        }
+
+        .arabic-msg {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .signature {
+            text-align: center;
+        }
+
+        .signature .name {
+            color: var(--gold-color);
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .signature .title {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        /* Decorative elements */
+        .decor-diamonds {
+            color: var(--border-color);
+            font-size: 24px;
+            margin-top: 20px;
+            letter-spacing: 5px;
+            text-align: center;
+        }
+
+        /* Dashboard UI Elements */
+        h2.panel-title {
+            font-size: 22px;
+            color: var(--gold-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .form-control {
+            width: 100%;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: #fff;
+            padding: 10px;
+            font-family: 'Cairo', sans-serif;
+            border-radius: 4px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--gold-color);
+        }
+
+        .row-flex {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row-flex > * {
+            flex: 1;
+        }
+
+        .section-card {
+            background-color: #202020;
+            border: 1px solid #2d2d2d;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .section-card h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: var(--gold-color);
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--gold-color);
+            color: #111;
+            font-weight: bold;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background-color: #444;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background-color: #ff3333;
+        }
+
+        /* Items Table Editor */
+        .item-editor-row {
+            background-color: #282828;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            border-right: 3px solid var(--gold-color);
+            position: relative;
+        }
+
+        .item-editor-row.item-type-payment {
+            border-right-color: var(--success-color);
+        }
+
+        .item-editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .item-editor-header span {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Custom Toggles */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .toggle-container input[type="checkbox"] {
+            width: 40px;
+            height: 20px;
+            appearance: none;
+            background: #444;
+            border-radius: 10px;
+            position: relative;
+            outline: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-container input[type="checkbox"]:checked {
+            background: var(--gold-color);
+        }
+
+        .toggle-container input[type="checkbox"]::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #fff;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-container input[type="checkbox"]:checked::before {
+            transform: translateX(20px);
+        }
+
+        /* Kashier Live Box */
+        .kashier-box {
+            background-color: #1a252f;
+            border: 1px solid #2c3e50;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .kashier-box h4 {
+            margin-top: 0;
+            color: #3498db;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Ink Saver Active Styling (Interactive view) */
+        .ink-saver-active {
+            background-color: #ffffff !important;
+            background-image: none !important;
+            color: #000000 !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .ink-saver-active .watermark {
+            color: rgba(143, 111, 45, 0.08) !important;
+            border-color: rgba(143, 111, 45, 0.08) !important;
+        }
+
+        .ink-saver-active span.label,
+        .ink-saver-active .signature .title {
+            color: #333333 !important;
+        }
+
+        .ink-saver-active span.value,
+        .ink-saver-active .signature .name,
+        .ink-saver-active .cursive-text {
+            color: #8f6f2d !important;
+        }
+
+        .ink-saver-active table thead {
+            border-color: #000000 !important;
+        }
+
+        .ink-saver-active table th,
+        .ink-saver-active table td,
+        .ink-saver-active .total-section {
+            border-color: #dddddd !important;
+        }
+
+        .ink-saver-active .total-section {
+            border-top: 1px solid #000000 !important;
+            border-bottom: 1px solid #000000 !important;
+        }
+
+        /* Kashier Button Styles override */
+        #kashier-payment-container {
+            margin-top: 20px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Print media settings */
+        @media print {
+            body {
+                background-color: #fff !important;
+                color: #000 !important;
+            }
+
+            .editor-panel {
+                display: none !important;
+            }
+
+            .preview-panel {
+                padding: 0 !important;
+                background: none !important;
+                display: block !important;
+            }
+
+            .invoice-container {
+                box-shadow: none !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                border-radius: 0 !important;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .editor-panel {
+                width: 100%;
+                height: auto;
+                position: relative;
+                box-shadow: none;
+                border-left: none;
+                border-bottom: 1px solid #2d2d2d;
+            }
+
+            .preview-panel {
+                padding: 20px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Overlay -->
+    <div id="login-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10,10,10,0.96); display:flex; justify-content:center; align-items:center; z-index:999999; backdrop-filter:blur(12px);">
+        <div style="background:#141414; padding:40px; border-radius:15px; border:1px solid #dcb360; width:90%; max-width:400px; text-align:center; box-shadow:0 15px 40px rgba(0,0,0,0.6); font-family:'Cairo', sans-serif;">
+            <img src="logo.png" alt="شعار شركة الخليج" style="width:120px; margin-bottom:20px; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));" onerror="this.onerror=null; this.src='https://via.placeholder.com/180x80/111/dcb360?text=Logo';">
+            <h2 style="color:#dcb360; margin-bottom:10px; font-size:22px; font-weight:bold;">لوحة تحكم شركة الخليج</h2>
+            <p style="color:#888; font-size:14px; margin-bottom:25px;">الرجاء إدخال كلمة المرور للمتابعة</p>
+            <input type="password" id="login-password" style="width:100%; padding:12px; border-radius:8px; border:1px solid #333; background:#1c1c1c; color:#fff; text-align:center; font-size:18px; margin-bottom:20px; outline:none;" placeholder="كلمة المرور" onkeypress="if(event.key==='Enter') checkPassword()">
+            <button onclick="checkPassword()" style="width:100%; padding:12px; border-radius:8px; border:none; background:linear-gradient(135deg, #dcb360, #b8860b); color:#000; font-weight:bold; font-size:16px; cursor:pointer;">دخول</button>
+            <p id="login-error" style="color:#ff4d4d; font-size:14px; margin-top:15px; display:none;">كلمة المرور غير صحيحة!</p>
+        </div>
+    </div>
+
+<div class="app-container">
+
+    <!-- Control Panel -->
+    <div class="editor-panel">
+        <h2 class="panel-title">
+            <span>لوحة تحكم الفاتورة</span>
+            <span style="font-size: 12px; color: #888;">شركة الخليج</span>
+        </h2>
+
+        <!-- Tab Content -->
+        <div>
+            <!-- Client & Period Info -->
+            <div class="section-card">
+                <h3>بيانات العميل والفترة</h3>
+                <div class="form-group">
+                    <label>فاتورة إلى (اسم العميل):</label>
+                    <input type="text" id="input-client-name" class="form-control" value="ابو خالد" oninput="updateInvoice()">
+                </div>
+                
+                <div class="toggle-container">
+                    <input type="checkbox" id="input-auto-days" checked onchange="toggleAutoDays()">
+                    <label for="input-auto-days" style="margin-bottom:0; cursor:pointer;">حساب الأيام تلقائياً من التواريخ</label>
+                </div>
+
+                <div class="row-flex">
+                    <div class="form-group">
+                        <label>تاريخ البدء:</label>
+                        <input type="date" id="input-start-date" class="form-control" value="2024-05-15" onchange="onDateChange()">
+                    </div>
+                    <div class="form-group">
+                        <label>تاريخ الانتهاء:</label>
+                        <input type="date" id="input-end-date" class="form-control" value="2024-07-08" onchange="onDateChange()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Invoice Items -->
+            <div class="section-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 8px;">
+                    <h3 style="margin: 0; border: none; padding: 0;">بنود الجدول</h3>
+                    <button class="btn btn-secondary" style="width: auto; padding: 3px 10px; font-size: 12px;" onclick="addNewItem()">إضافة بند (+)</button>
+                </div>
+                <div id="editor-items-list">
+                    <!-- Dynamic Items list will go here -->
+                </div>
+            </div>
+
+            <!-- Footer & Signature Settings -->
+            <div class="section-card">
+                <h3>التوقيع والنصوص</h3>
+                <div class="row-flex">
+                    <div class="form-group">
+                        <label>اسم الموقع للشركة:</label>
+                        <input type="text" id="input-sig-name" class="form-control" value="Mohamed Motaz" oninput="updateInvoice()">
+                    </div>
+                    <div class="form-group">
+                        <label>الوظيفة:</label>
+                        <input type="text" id="input-sig-title" class="form-control" value="CEO and chairman" oninput="updateInvoice()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>نص الشكر (بالعربية):</label>
+                    <textarea id="input-thank-you" class="form-control" rows="3" oninput="updateInvoice()">نتمنى لك رحلة آمنة وممتعة، ونحن هنا لخدمتك وضمان راحتك خلال فترة الإيجار. شكرًا لاختيارك شركتنا ونتطلع لخدمتك مرة أخرى.</textarea>
+                </div>
+                <div class="row-flex">
+                    <div class="form-group">
+                        <label>العلامة المائية (Watermark):</label>
+                        <input type="text" id="input-watermark" class="form-control" value="PAID IN FULL THANK YOU" oninput="updateInvoice()">
+                    </div>
+                </div>
+                <div class="toggle-container">
+                    <input type="checkbox" id="input-show-watermark" checked onchange="updateInvoice()">
+                    <label for="input-show-watermark" style="margin-bottom:0; cursor:pointer;">عرض العلامة المائية</label>
+                </div>
+            </div>
+
+            <!-- Contact & Web Settings -->
+            <div class="section-card">
+                <h3>معلومات الاتصال والشركة</h3>
+                <div class="row-flex">
+                    <div class="form-group">
+                        <label>رقم الهاتف:</label>
+                        <input type="text" id="input-phone" class="form-control" value="+201111912323" oninput="updateInvoice()">
+                    </div>
+                    <div class="form-group">
+                        <label>موقع الويب:</label>
+                        <input type="text" id="input-web" class="form-control" value="https://elkhaleeej.com" oninput="updateInvoice()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kashier API Settings -->
+            <div class="section-card">
+                <h3>إعدادات كاشير (Kashier API)</h3>
+                <div class="form-group">
+                    <label>Merchant ID (MID):</label>
+                    <input type="text" id="kashier-mid" class="form-control" placeholder="MID-XXXX-XXXX" value="" oninput="saveKashierSettings()">
+                </div>
+                <div class="form-group">
+                    <label>Terminal ID (اختياري):</label>
+                    <input type="text" id="kashier-terminal" class="form-control" placeholder="مثال: 1" value="" oninput="saveKashierSettings()">
+                </div>
+                <div class="form-group">
+                    <label>Payment API Key (Default-Live-Key):</label>
+                    <input type="text" id="kashier-pay-key" class="form-control" value="" oninput="saveKashierSettings()">
+                </div>
+                <div class="form-group">
+                    <label>Secret API Key:</label>
+                    <input type="password" id="kashier-secret-key" class="form-control" value="" oninput="saveKashierSettings()">
+                </div>
+                <div class="toggle-container">
+                    <input type="checkbox" id="kashier-mode-live" checked onchange="saveKashierSettings()">
+                    <label for="kashier-mode-live" style="margin-bottom:0; cursor:pointer;">الوضع الحقيقي (Live Mode)</label>
+                </div>
+                <button class="btn" style="background-color: #3498db; color: #fff;" onclick="generatePaymentLink()">تحديث وإنشاء زر الدفع أونلاين</button>
+                
+                <div class="kashier-box" id="kashier-status-box" style="display:none;">
+                    <h4>
+                        <span id="kashier-mode-badge" style="background-color:#27ae60; color:white; padding:2px 6px; border-radius:3px; font-size:10px;">LIVE</span>
+                        بوابة الدفع نشطة
+                    </h4>
+                    <p style="font-size:12px; margin: 0; color:#bdc3c7;">تم حساب التوقيع الرقمي وتوليد زر الدفع على الفاتورة بنجاح.</p>
+                </div>
+            </div>
+
+            <!-- Print & Layout Actions -->
+            <div class="section-card">
+                <h3>إجراءات وطباعة</h3>
+                <div class="toggle-container">
+                    <input type="checkbox" id="input-ink-saver" onchange="toggleInkSaver()">
+                    <label for="input-ink-saver" style="margin-bottom:0; cursor:pointer;">نمط توفير الحبر (خلفية بيضاء للطباعة)</label>
+                </div>
+                <div class="row-flex" style="margin-top:10px;">
+                    <button class="btn" onclick="window.print()">طباعة الفاتورة (PDF)</button>
+                    <button class="btn btn-secondary" onclick="resetDefaults()">افتراضي</button>
+                </div>
+                <button class="btn" style="background-color: #27ae60; color: #fff; margin-top: 10px;" onclick="downloadCustomerInvoice()">تحميل الفاتورة للعميل (صفحة HTML للدفع)</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Live Preview Panel -->
+    <div class="preview-panel">
+
+        <div class="invoice-container" id="invoice-container">
+            <!-- Watermark -->
+            <div class="watermark" id="invoice-watermark">PAID IN FULL THANK YOU</div>
+
+            <!-- Header -->
+            <div class="header">
+                <div class="logo-section">
+                    <img src="logo.png" alt="شعار شركة الخليج" onerror="this.onerror=null; this.src='https://via.placeholder.com/180x80/111/dcb360?text=Logo';">
+                </div>
+                <div class="title-section">
+                    <h1>فاتورة</h1>
+                </div>
+                <div style="width: 200px;"></div> 
+            </div>
+
+            <!-- Info Section -->
+            <div class="info-section">
+                <div class="info-row">
+                    <span class="label">فاتوره الى:</span>
+                    <span class="value" id="invoice-client-name">ابو خالد</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">المده:</span>
+                    <span class="value">من <span id="invoice-start-date">15/5/2024</span> حتي <span id="invoice-end-date">8/7/2024</span></span>
+                </div>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="contact-info">
+                <div id="invoice-phone">+201111912323</div>
+                <div id="invoice-web">https://elkhaleeej.com</div>
+            </div>
+
+            <!-- Table -->
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%;"></th>
+                        <th style="width: 35%;">الوصف</th>
+                        <th style="width: 20%;">سعر اليوم</th>
+                        <th style="width: 20%;">عدد الايام</th>
+                        <th style="width: 20%;">اجمالي</th>
+                    </tr>
+                </thead>
+                <tbody id="invoice-items-table">
+                    <!-- Dynamic items rendered here -->
+                </tbody>
+            </table>
+
+            <!-- Total Section -->
+            <div class="total-section">
+                <div style="font-weight: bold; font-size: 18px;">المتبقي للدفع (اجمالي)</div>
+                <div id="invoice-final-total" style="font-weight: bold; font-size: 18px; color: var(--gold-color);">0</div>
+            </div>
+            
+            <div class="decor-diamonds">
+                ◇ ◇ ◇
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <div class="thank-you-msg">
+                    <div class="cursive-text">Thank You</div>
+                    <div class="arabic-msg" id="invoice-thank-you-text">
+                        نتمنى لك رحلة آمنة وممتعة، ونحن هنا لخدمتك وضمان راحتك خلال فترة الإيجار. شكرًا لاختيارك شركتنا ونتطلع لخدمتك مرة أخرى.
+                    </div>
+                </div>
+                <div class="signature">
+                    <div class="name" id="invoice-sig-name">Mohamed Motaz</div>
+                    <div class="title" id="invoice-sig-title">CEO and chairman</div>
+                </div>
+            </div>
+
+            <!-- Kashier dynamic payment button container inside invoice -->
+            <div id="kashier-payment-container">
+                <!-- Dynamically injected kashier checkout button -->
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    // State management
+    let state = {
+        clientName: "ابو خالد",
+        startDate: "2024-05-15",
+        endDate: "2024-07-08",
+        autoDays: true,
+        sigName: "Mohamed Motaz",
+        sigTitle: "CEO and chairman",
+        thankYou: "نتمنى لك رحلة آمنة وممتعة، ونحن هنا لخدمتك وضمان راحتك خلال فترة الإيجار. شكرًا لاختيارك شركتنا ونتطلع لخدمتك مرة أخرى.",
+        watermark: "PAID IN FULL THANK YOU",
+        showWatermark: true,
+        phone: "+201111912323",
+        web: "https://elkhaleeej.com",
+        kashierMid: "",
+        kashierTerminalId: "",
+        kashierPayKey: "",
+        kashierSecretKey: "",
+        kashierLive: true,
+        inkSaver: false,
+        items: [
+            { id: 1, type: "charge", desc: "الإيجار اليومي", rate: 1200, days: 55, total: 66000 },
+            { id: 2, type: "payment", desc: "المدفوع مقدماً", rate: "", days: "", total: 37000 }
+        ]
+    };
+
+    // Login Password Check
+    function checkPassword() {
+        const pass = document.getElementById("login-password").value;
+        if (pass === "elkhaleej2026") {
+            sessionStorage.setItem("authenticated", "true");
+            document.getElementById("login-overlay").style.display = "none";
+        } else {
+            const err = document.getElementById("login-error");
+            err.style.display = "block";
+        }
+    }
+
+    if (sessionStorage.getItem("authenticated") === "true") {
+        document.addEventListener("DOMContentLoaded", () => {
+            const overlay = document.getElementById("login-overlay");
+            if (overlay) overlay.style.display = "none";
+        });
+    }
+
+    // Calculate days between two dates
+    function calculateDays(start, end) {
+        if (!start || !end) return 0;
+        const d1 = new Date(start);
+        const d2 = new Date(end);
+        const diffTime = Math.abs(d2 - d1);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays || 0;
+    }
+
+    // Format Date to DD/MM/YYYY for arabic viewing
+    function formatDateArabic(dateStr) {
+        if (!dateStr) return "";
+        const parts = dateStr.split("-");
+        if (parts.length === 3) {
+            return `${parseInt(parts[2])}/${parseInt(parts[1])}/${parts[0]}`;
+        }
+        return dateStr;
+    }
+
+    // Initialize application
+    window.onload = function() {
+        // Load saved state from localStorage if exists
+        const savedState = localStorage.getItem("invoice_dashboard_state");
+        if (savedState) {
+            try {
+                state = JSON.parse(savedState);
+                loadInputsFromState();
+            } catch (e) {
+                console.error("Error loading state", e);
+            }
+        }
+        renderItemsEditor();
+        updateInvoice();
+    };
+
+    function loadInputsFromState() {
+        document.getElementById("input-client-name").value = state.clientName;
+        document.getElementById("input-start-date").value = state.startDate;
+        document.getElementById("input-end-date").value = state.endDate;
+        document.getElementById("input-auto-days").checked = state.autoDays;
+        document.getElementById("input-sig-name").value = state.sigName;
+        document.getElementById("input-sig-title").value = state.sigTitle;
+        document.getElementById("input-thank-you").value = state.thankYou;
+        document.getElementById("input-watermark").value = state.watermark;
+        document.getElementById("input-show-watermark").checked = state.showWatermark;
+        document.getElementById("input-phone").value = state.phone;
+        document.getElementById("input-web").value = state.web;
+        document.getElementById("kashier-mid").value = state.kashierMid;
+        document.getElementById("kashier-terminal").value = state.kashierTerminalId || "";
+        document.getElementById("kashier-pay-key").value = state.kashierPayKey;
+        document.getElementById("kashier-secret-key").value = state.kashierSecretKey;
+        document.getElementById("kashier-mode-live").checked = state.kashierLive;
+        document.getElementById("input-ink-saver").checked = state.inkSaver;
+    }
+
+    function saveState() {
+        localStorage.setItem("invoice_dashboard_state", JSON.stringify(state));
+    }
+
+    // Update state and refresh UI
+    function updateInvoice() {
+        // Retrieve inputs
+        state.clientName = document.getElementById("input-client-name").value;
+        state.startDate = document.getElementById("input-start-date").value;
+        state.endDate = document.getElementById("input-end-date").value;
+        state.sigName = document.getElementById("input-sig-name").value;
+        state.sigTitle = document.getElementById("input-sig-title").value;
+        state.thankYou = document.getElementById("input-thank-you").value;
+        state.watermark = document.getElementById("input-watermark").value;
+        state.showWatermark = document.getElementById("input-show-watermark").checked;
+        state.phone = document.getElementById("input-phone").value;
+        state.web = document.getElementById("input-web").value;
+
+        // Apply fields to Live Invoice
+        document.getElementById("invoice-client-name").innerText = state.clientName;
+        document.getElementById("invoice-start-date").innerText = formatDateArabic(state.startDate);
+        document.getElementById("invoice-end-date").innerText = formatDateArabic(state.endDate);
+        
+        document.getElementById("invoice-phone").innerText = state.phone;
+        document.getElementById("invoice-web").innerText = state.web;
+        document.getElementById("invoice-thank-you-text").innerHTML = state.thankYou.replace(/\n/g, "<br>");
+        document.getElementById("invoice-sig-name").innerText = state.sigName;
+        document.getElementById("invoice-sig-title").innerText = state.sigTitle;
+
+        // Watermark handling
+        const watermarkEl = document.getElementById("invoice-watermark");
+        if (state.showWatermark && state.watermark.trim() !== "") {
+            watermarkEl.style.display = "block";
+            watermarkEl.innerText = state.watermark;
+        } else {
+            watermarkEl.style.display = "none";
+        }
+
+        // Calculate and render table rows
+        renderTableRowsAndCalculate();
+        saveState();
+    }
+
+    // Recalculate automatic days for rental rows
+    function onDateChange() {
+        const start = document.getElementById("input-start-date").value;
+        const end = document.getElementById("input-end-date").value;
+        state.startDate = start;
+        state.endDate = end;
+
+        if (state.autoDays) {
+            const days = calculateDays(start, end);
+            state.items.forEach(item => {
+                if (item.type === "charge" && (item.desc.includes("الإيجار") || item.desc.includes("اليوم")) || item.days !== "") {
+                    item.days = days;
+                    if (item.rate !== "") {
+                        item.total = item.rate * item.days;
+                    }
+                }
+            });
+            renderItemsEditor();
+        }
+        updateInvoice();
+    }
+
+    function toggleAutoDays() {
+        state.autoDays = document.getElementById("input-auto-days").checked;
+        if (state.autoDays) {
+            onDateChange();
+        } else {
+            saveState();
+        }
+    }
+
+    function toggleInkSaver() {
+        state.inkSaver = document.getElementById("input-ink-saver").checked;
+        const container = document.getElementById("invoice-container");
+        if (state.inkSaver) {
+            container.classList.add("ink-saver-active");
+            document.body.classList.add("print-ink-saver");
+        } else {
+            container.classList.remove("ink-saver-active");
+            document.body.classList.remove("print-ink-saver");
+        }
+        saveState();
+    }
+
+    // Dynamic Items calculations
+    function renderTableRowsAndCalculate() {
+        const tbody = document.getElementById("invoice-items-table");
+        tbody.innerHTML = "";
+
+        let subtotal = 0;
+        let payments = 0;
+        let index = 1;
+
+        state.items.forEach(item => {
+            const tr = document.createElement("tr");
+
+            // Calculate item total if auto
+            let itemTotal = parseFloat(item.total) || 0;
+            if (item.type === "charge" && item.rate !== "" && item.days !== "") {
+                itemTotal = parseFloat(item.rate) * parseFloat(item.days);
+            }
+
+            if (item.type === "charge") {
+                subtotal += itemTotal;
+            } else {
+                payments += itemTotal;
+            }
+
+            tr.innerHTML = `
+                <td>${index++}</td>
+                <td>${item.desc}</td>
+                <td>${item.rate !== "" ? item.rate : "-"}</td>
+                <td>${item.days !== "" ? item.days : "-"}</td>
+                <td>${itemTotal.toLocaleString("ar-EG")}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Compute final balance
+        const finalTotal = subtotal - payments;
+        document.getElementById("invoice-final-total").innerText = finalTotal.toLocaleString("ar-EG") + " جنيه";
+        document.getElementById("invoice-final-total").setAttribute("data-raw-total", finalTotal);
+    }
+
+    // Render items list in the control panel editor
+    function renderItemsEditor() {
+        const listContainer = document.getElementById("editor-items-list");
+        listContainer.innerHTML = "";
+
+        state.items.forEach((item, index) => {
+            const div = document.createElement("div");
+            div.className = `item-editor-row ${item.type === 'payment' ? 'item-type-payment' : ''}`;
+            
+            div.innerHTML = `
+                <div class="item-editor-header">
+                    <span>بند #${index + 1} (${item.type === 'charge' ? 'مستحق +' : 'مدفوع/خصم -'})</span>
+                    <button class="delete-btn" onclick="removeItem(${item.id})">×</button>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" style="font-size:12px; padding: 6px;" placeholder="الوصف (مثال: اليوم أو تأمين)" value="${item.desc}" oninput="editItemField(${item.id}, 'desc', this.value)">
+                </div>
+                <div class="row-flex">
+                    <div class="form-group">
+                        <label style="font-size:11px;">سعر اليوم (اختياري):</label>
+                        <input type="number" class="form-control" style="font-size:12px; padding: 6px;" value="${item.rate}" placeholder="1200" oninput="editItemField(${item.id}, 'rate', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size:11px;">الأيام (اختياري):</label>
+                        <input type="number" class="form-control" style="font-size:12px; padding: 6px;" value="${item.days}" placeholder="55" oninput="editItemField(${item.id}, 'days', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size:11px;">المبلغ الإجمالي:</label>
+                        <input type="number" class="form-control" style="font-size:12px; padding: 6px;" value="${item.total}" placeholder="إجمالي" oninput="editItemField(${item.id}, 'total', this.value)">
+                    </div>
+                </div>
+            `;
+            listContainer.appendChild(div);
+        });
+    }
+
+    function editItemField(id, field, value) {
+        const item = state.items.find(i => i.id === id);
+        if (item) {
+            if (field === 'rate' || field === 'days' || field === 'total') {
+                item[field] = value === "" ? "" : parseFloat(value);
+                // Auto compute total if rate and days are filled
+                if (item.type === 'charge' && item.rate !== "" && item.days !== "" && field !== 'total') {
+                    item.total = item.rate * item.days;
+                }
+            } else {
+                item[field] = value;
+            }
+            // re-render preview table only, don't rebuild input fields to keep cursor focus
+            updateInvoice();
+            // rebuild editor list only if total was auto-calculated, to show it
+            if (field !== 'desc') {
+                setTimeout(renderItemsEditor, 1500); // delay to let user finish typing
+            }
+        }
+    }
+
+    function addNewItem() {
+        const maxId = state.items.reduce((max, item) => item.id > max ? item.id : max, 0);
+        const autoDaysVal = state.autoDays ? calculateDays(state.startDate, state.endDate) : "";
+        
+        // Alternate between charge and payment or just add charge by default
+        const type = confirm("هل هذا البند مبلغ مستحق دفع (إيجار/رسوم)؟ اضغط OK.\nأم أنه خصم/مبلغ مدفوع مقدماً؟ اضغط Cancel.") ? "charge" : "payment";
+        
+        state.items.push({
+            id: maxId + 1,
+            type: type,
+            desc: type === "charge" ? "رسوم إضافية" : "مبلغ مدفوع",
+            rate: "",
+            days: type === "charge" ? autoDaysVal : "",
+            total: 0
+        });
+        
+        renderItemsEditor();
+        updateInvoice();
+    }
+
+    function removeItem(id) {
+        if (state.items.length <= 1) {
+            alert("يجب أن تحتوي الفاتورة على بند واحد على الأقل.");
+            return;
+        }
+        state.items = state.items.filter(i => i.id !== id);
+        renderItemsEditor();
+        updateInvoice();
+    }
+
+    // Save Kashier config
+    function saveKashierSettings() {
+        state.kashierMid = document.getElementById("kashier-mid").value;
+        state.kashierTerminalId = document.getElementById("kashier-terminal").value;
+        state.kashierPayKey = document.getElementById("kashier-pay-key").value;
+        state.kashierSecretKey = document.getElementById("kashier-secret-key").value;
+        state.kashierLive = document.getElementById("kashier-mode-live").checked;
+        saveState();
+    }
+
+    // Cryptographic signature generator (HMAC-SHA256) using Web Crypto API
+    async function calculateKashierSignature(mid, amount, orderId, secretKey) {
+        const path = `/?payment=${mid}.${orderId}.${amount}.EGP`;
+
+        // Hashing using browser Web Crypto API
+        const encoder = new TextEncoder();
+        const keyData = encoder.encode(secretKey);
+        const messageData = encoder.encode(path);
+
+        const cryptoKey = await window.crypto.subtle.importKey(
+            "raw",
+            keyData,
+            { name: "HMAC", hash: "SHA-256" },
+            false,
+            ["sign"]
+        );
+
+        const signature = await window.crypto.subtle.sign(
+            "HMAC",
+            cryptoKey,
+            messageData
+        );
+
+        // Convert signature array to hex string
+        return Array.from(new Uint8Array(signature))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join("");
+    }
+
+    // Generate Payment Link and load Kashier Checkout script
+    async function generatePaymentLink() {
+        const mid = state.kashierMid;
+        const payKey = state.kashierPayKey;
+        const secretKey = state.kashierSecretKey;
+        const isLive = state.kashierLive;
+
+        if (!mid || !payKey || !secretKey) {
+            alert("يرجى ملء جميع إعدادات الدفع الخاصة بكاشير (MID, API Keys) لتوليد رابط الدفع.");
+            return;
+        }
+
+        // Get total amount due
+        const amountElement = document.getElementById("invoice-final-total");
+        const rawAmount = parseFloat(amountElement.getAttribute("data-raw-total")) || 0;
+
+        if (rawAmount <= 0) {
+            alert("اجمالي المبلغ المتبقي يجب أن يكون أكبر من الصفر لتوليد رابط الدفع.");
+            return;
+        }
+
+        // Generate unique order ID using timestamp
+        const orderId = "INV-" + Date.now();
+        const mode = isLive ? "live" : "test";
+
+        try {
+            // Format amount to 2 decimal places to match standard gateway currency formats
+            const displayAmount = rawAmount.toFixed(2);
+
+            // Calculate Signature using the Payment API Key (payKey) instead of Secret Key (secretKey)
+            const hash = await calculateKashierSignature(mid, displayAmount, orderId, payKey);
+
+            // Dynamically inject script container
+            const container = document.getElementById("kashier-payment-container");
+            container.innerHTML = ""; // Clear existing
+
+            // Setup a status message or payment helper
+            const statusBox = document.getElementById("kashier-status-box");
+            const badge = document.getElementById("kashier-mode-badge");
+            
+            badge.innerText = isLive ? "LIVE" : "TEST";
+            badge.style.backgroundColor = isLive ? "#27ae60" : "#e67e22";
+            statusBox.style.display = "block";
+
+            // Inject the script tag to render kashier button
+            const script = document.createElement("script");
+            script.src = "https://checkout.kashier.io/kashier-checkout.js";
+            script.id = "kashier-iFrame";
+            script.setAttribute("data-merchantId", mid);
+            if (state.kashierTerminalId) {
+                script.setAttribute("data-terminalId", state.kashierTerminalId);
+                script.setAttribute("data-terminal-id", state.kashierTerminalId);
+            }
+            script.setAttribute("data-amount", displayAmount);
+            script.setAttribute("data-currency", "EGP");
+            script.setAttribute("data-orderId", orderId);
+            script.setAttribute("data-hash", hash);
+            script.setAttribute("data-mode", mode);
+            script.setAttribute("data-allowedMethods", "card,wallet");
+            script.setAttribute("data-display", "ar");
+            // Redirect to merchant website instead of local file to avoid browser CORS/file policy
+            script.setAttribute("data-merchantRedirect", state.web || "https://elkhaleeej.com");
+
+            container.appendChild(script);
+
+            // Listen for window message event from Kashier Iframe
+            window.addEventListener("message", function(event) {
+                if (event.data && event.data.message) {
+                    if (event.data.message === "success") {
+                        alert("تمت عملية الدفع بنجاح! شكراً لك.");
+                        console.log("Kashier Success Payment Details:", event.data);
+                    } else if (event.data.message === "failure") {
+                        alert("فشلت عملية الدفع. يرجى المحاولة مرة أخرى.");
+                        console.log("Kashier Failure Payment Details:", event.data);
+                    }
+                }
+            }, false);
+
+        } catch (error) {
+            console.error("Error generating Kashier signature", error);
+            alert("حدث خطأ أثناء توليد التوقيع الرقمي لكاشير: " + error.message);
+        }
+    }
+
+    async function downloadCustomerInvoice() {
+        const clientName = state.clientName || "client";
+        const mid = state.kashierMid;
+        const payKey = state.kashierPayKey;
+        const secretKey = state.kashierSecretKey;
+        const isLive = state.kashierLive;
+        const amountElement = document.getElementById("invoice-final-total");
+        const rawAmount = parseFloat(amountElement.getAttribute("data-raw-total")) || 0;
+        
+        if (rawAmount <= 0) {
+            alert("اجمالي المبلغ المتبقي يجب أن يكون أكبر من الصفر.");
+            return;
+        }
+
+        if (!mid || !payKey || !secretKey) {
+            alert("يرجى ملء جميع إعدادات الدفع الخاصة بكاشير (MID, API Keys) لتوليد الفاتورة.");
+            return;
+        }
+        
+        try {
+            const orderId = "INV-" + Date.now();
+            const mode = isLive ? "live" : "test";
+            const displayAmount = rawAmount.toFixed(2);
+            const hash = await calculateKashierSignature(mid, displayAmount, orderId, payKey);
+            
+            const watermarkText = state.showWatermark && state.watermark.trim() !== "" ? state.watermark : "";
+            const watermarkDisplay = state.showWatermark && state.watermark.trim() !== "" ? "block" : "none";
+            
+            let rowsHtml = "";
+            let index = 1;
+            state.items.forEach(item => {
+                let itemTotal = parseFloat(item.total) || 0;
+                if (item.type === "charge" && item.rate !== "" && item.days !== "") {
+                    itemTotal = parseFloat(item.rate) * parseFloat(item.days);
+                }
+                rowsHtml += `
+                    <tr>
+                        <td style="border: 1px solid var(--border-color); padding: 12px;">${index++}</td>
+                        <td style="border: 1px solid var(--border-color); padding: 12px;">${item.desc}</td>
+                        <td style="border: 1px solid var(--border-color); padding: 12px;">${item.rate !== "" ? item.rate : "-"}</td>
+                        <td style="border: 1px solid var(--border-color); padding: 12px;">${item.days !== "" ? item.days : "-"}</td>
+                        <td style="border: 1px solid var(--border-color); padding: 12px;">${itemTotal.toLocaleString("ar-EG")}</td>
+                    </tr>
+                `;
+            });
+            
+            const finalTotalText = rawAmount.toLocaleString("ar-EG") + " جنيه";
+            const formattedThankYou = state.thankYou.replace(/\n/g, "<br>");
+            
+            const cleanHtml = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فاتورة - ${state.clientName}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #111111;
+            --gold-color: #dcb360;
+            --text-light: #ffffff;
+            --border-color: #555555;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #222;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .invoice-container {
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            width: 100%;
+            max-width: 800px;
+            padding: 40px 50px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            background-image: radial-gradient(circle at top left, #2a2515 0%, #111111 40%);
+            border-radius: 4px;
+        }
+        
+        ${state.inkSaver ? `
+        .invoice-container {
+            background-color: #ffffff !important;
+            background-image: none !important;
+            color: #000000 !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+        }
+        .invoice-container .watermark {
+            color: rgba(143, 111, 45, 0.08) !important;
+            border-color: rgba(143, 111, 45, 0.08) !important;
+        }
+        .invoice-container span.label,
+        .invoice-container .signature .title {
+            color: #333333 !important;
+        }
+        .invoice-container span.value,
+        .invoice-container .signature .name,
+        .invoice-container .cursive-text {
+            color: #8f6f2d !important;
+        }
+        .invoice-container table thead {
+            border-color: #000000 !important;
+        }
+        .invoice-container table th,
+        .invoice-container table td,
+        .invoice-container .total-section {
+            border-color: #dddddd !important;
+        }
+        .invoice-container .total-section {
+            border-top: 1px solid #000000 !important;
+            border-bottom: 1px solid #000000 !important;
+        }
+        ` : ''}
+
+        /* Watermark */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 80px;
+            font-weight: bold;
+            color: rgba(220, 179, 96, 0.05);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 0;
+            border: 5px solid rgba(220, 179, 96, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-section {
+            width: 200px;
+        }
+
+        .logo-section img {
+            width: 100%;
+            max-width: 180px;
+        }
+
+        .title-section {
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .title-section h1 {
+            color: var(--gold-color);
+            font-size: 55px;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .info-section {
+            text-align: right;
+            margin-top: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .info-row {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .info-row span.label {
+            color: var(--text-light);
+            margin-left: 10px;
+        }
+
+        .info-row span.value {
+            color: var(--gold-color);
+            font-weight: bold;
+        }
+
+        .contact-info {
+            text-align: left;
+            direction: ltr;
+            margin-top: -30px;
+            font-size: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        thead {
+            border-top: 1px solid var(--text-light);
+            border-bottom: 1px solid var(--text-light);
+        }
+
+        th {
+            padding: 15px 10px;
+            text-align: right;
+            font-weight: normal;
+        }
+
+        td {
+            padding: 15px 10px;
+            text-align: right;
+        }
+
+        .total-section {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--text-light);
+            border-bottom: 1px solid var(--text-light);
+            padding: 15px 10px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            position: relative;
+            z-index: 1;
+        }
+
+        .thank-you-msg {
+            max-width: 60%;
+        }
+
+        .cursive-text {
+            font-family: 'Great Vibes', cursive;
+            color: var(--gold-color);
+            font-size: 45px;
+            margin-bottom: 10px;
+        }
+
+        .arabic-msg {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .signature {
+            text-align: center;
+        }
+
+        .signature .name {
+            color: var(--gold-color);
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .signature .title {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .decor-diamonds {
+            color: var(--border-color);
+            font-size: 24px;
+            margin-top: 20px;
+            letter-spacing: 5px;
+            text-align: center;
+        }
+
+        #kashier-payment-container {
+            margin-top: 30px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        #kashier-payment-container input[type="image"], 
+        #kashier-payment-container button, 
+        .kashier-pay-btn {
+            background-color: var(--gold-color) !important;
+            color: #111 !important;
+            font-family: 'Cairo', sans-serif !important;
+            font-weight: bold !important;
+            border: none !important;
+            padding: 15px 35px !important;
+            font-size: 18px !important;
+            border-radius: 5px !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 15px rgba(220, 179, 96, 0.4) !important;
+        }
+        #kashier-payment-container input[type="image"]:hover, 
+        #kashier-payment-container button:hover, 
+        .kashier-pay-btn:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(220, 179, 96, 0.6) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="invoice-container">
+        <div class="watermark" style="display: ${watermarkDisplay};">${watermarkText}</div>
+
+        <div class="header">
+            <div class="logo-section">
+                <img src="logo.png" alt="شعار شركة الخليج" onerror="this.onerror=null; this.src='https://via.placeholder.com/180x80/111/dcb360?text=Logo';">
+            </div>
+            <div class="title-section">
+                <h1>فاتورة</h1>
+            </div>
+            <div style="width: 200px;"></div> 
+        </div>
+
+        <div class="info-section">
+            <div class="info-row">
+                <span class="label">فاتوره الى:</span>
+                <span class="value">${state.clientName}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">المده:</span>
+                <span class="value">من <span>${formatDateArabic(state.startDate)}</span> حتي <span>${formatDateArabic(state.endDate)}</span></span>
+            </div>
+        </div>
+
+        <div class="contact-info">
+            <div>${state.phone}</div>
+            <div>${state.web}</div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 5%;"></th>
+                    <th style="width: 35%;">الوصف</th>
+                    <th style="width: 20%;">سعر اليوم</th>
+                    <th style="width: 20%;">عدد الايام</th>
+                    <th style="width: 20%;">اجمالي</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rowsHtml}
+            </tbody>
+        </table>
+
+        <div class="total-section">
+            <div style="font-weight: bold; font-size: 18px;">اجمالي المبلغ المتبقي</div>
+            <div style="font-weight: bold; font-size: 18px; color: var(--gold-color);">${finalTotalText}</div>
+        </div>
+        
+        <div class="decor-diamonds">
+            ◇ ◇ ◇
+        </div>
+
+        <div class="footer">
+            <div class="thank-you-msg">
+                <div class="cursive-text">Thank You</div>
+                <div class="arabic-msg">
+                    ${formattedThankYou}
+                </div>
+            </div>
+            <div class="signature">
+                <div class="name">${state.sigName}</div>
+                <div class="title">${state.sigTitle}</div>
+            </div>
+        </div>
+
+        <div id="kashier-payment-container">
+            <!-- Dynamically injected kashier checkout button -->
+        </div>
+    </div>
+
+    <script src="https://checkout.kashier.io/kashier-checkout.js"
+        id="kashier-iFrame"
+        data-merchantId="${mid}"
+        ${state.kashierTerminalId ? `data-terminalId="${state.kashierTerminalId}" data-terminal-id="${state.kashierTerminalId}"` : ''}
+        data-amount="${displayAmount}"
+        data-currency="EGP"
+        data-orderId="${orderId}"
+        data-hash="${hash}"
+        data-mode="${mode}"
+        data-allowedMethods="card,wallet"
+        data-display="ar"
+        data-merchantRedirect="${state.web}">
+    <\/script>
+
+    <script>
+        window.addEventListener("message", function(event) {
+            if (event.data && event.data.message) {
+                if (event.data.message === "success") {
+                    alert("تمت عملية الدفع بنجاح! شكراً لك.");
+                } else if (event.data.message === "failure") {
+                    alert("فشلت عملية الدفع. يرجى المحاولة مرة أخرى.");
+                }
+            }
+        }, false);
+    <\/script>
+</body>
+</html>`;
+            
+            const blob = new Blob([cleanHtml], { type: "text/html" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `invoice-${clientName}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error("Error generating clean invoice file", error);
+            alert("حدث خطأ أثناء إنشاء ملف الفاتورة: " + error.message);
+        }
+    }
+
+    function resetDefaults() {
+        if (confirm("هل أنت متأكد من رغبتك في إعادة تعيين كافة البيانات إلى القيم الافتراضية؟")) {
+            localStorage.removeItem("invoice_dashboard_state");
+            location.reload();
+        }
+    }
+</script>
+
+</body>
+</html>
