@@ -753,9 +753,10 @@
             </table>
 
             <!-- Total Section -->
-            <div class="total-section">
+            <div class="total-section" style="flex-wrap: wrap;">
                 <div style="font-weight: bold; font-size: 18px;">المتبقي للدفع (اجمالي)</div>
                 <div id="invoice-final-total" style="font-weight: bold; font-size: 18px; color: var(--gold-color);">0</div>
+                <div id="invoice-tafqeet-text" class="tafqeet-text" style="width: 100%; text-align: left; margin-top: 5px; font-size: 13px; color: #888; font-style: italic;"></div>
             </div>
             
             <div class="decor-diamonds">
@@ -861,6 +862,75 @@
             case "AED": return " درهم";
             default: return " " + currency;
         }
+    }
+
+    function tafqeet(number) {
+        if (number === 0) return "صفر";
+        const integerPart = Math.floor(number);
+        const ones = ["", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة", "عشرة", "أحد عشر", "اثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر"];
+        const tens = ["", "عشرة", "عشرون", "ثلاثون", "أربعون", "خمسون", "ستون", "سبعون", "ثمانون", "تسعون"];
+        const hundreds = ["", "مائة", "مائتان", "ثلاثمائة", "أربعمائة", "خمسمائة", "ستمائة", "سبعمائة", "ثمانمائة", "تسعمائة"];
+        
+        function convertThreeDigits(n) {
+            let result = "";
+            const h = Math.floor(n / 100);
+            const t = Math.floor((n % 100) / 10);
+            const o = n % 10;
+            if (h > 0) result += hundreds[h];
+            const remainder = n % 100;
+            if (remainder > 0) {
+                if (result !== "") result += " و ";
+                if (remainder < 20) {
+                    result += ones[remainder];
+                } else {
+                    if (o > 0) {
+                        result += ones[o] + " و " + tens[t];
+                    } else {
+                        result += tens[t];
+                    }
+                }
+            }
+            return result;
+        }
+
+        let words = "";
+        const millions = Math.floor(integerPart / 1000000);
+        if (millions > 0) {
+            if (millions === 1) words += "مليون";
+            else if (millions === 2) words += "مليونان";
+            else if (millions >= 3 && millions <= 10) words += convertThreeDigits(millions) + " ملايين";
+            else words += convertThreeDigits(millions) + " مليون";
+        }
+        const thousandsRemainder = integerPart % 1000000;
+        const thousands = Math.floor(thousandsRemainder / 1000);
+        if (thousands > 0) {
+            if (words !== "") words += " و ";
+            if (thousands === 1) words += "ألف";
+            else if (thousands === 2) words += "ألفان";
+            else if (thousands >= 3 && thousands <= 10) words += convertThreeDigits(thousands) + " آلاف";
+            else words += convertThreeDigits(thousands) + " ألف";
+        }
+        const remainder = integerPart % 1000;
+        if (remainder > 0) {
+            if (words !== "") words += " و ";
+            words += convertThreeDigits(remainder);
+        }
+        return words;
+    }
+
+    function getTafqeetText(amount, currency) {
+        const words = tafqeet(amount);
+        if (!words) return "";
+        let currencySuffix = "";
+        switch (currency) {
+            case "EGP": currencySuffix = " جنيه مصري"; break;
+            case "USD": currencySuffix = " دولار أمريكي"; break;
+            case "EUR": currencySuffix = " يورو"; break;
+            case "SAR": currencySuffix = " ريال سعودي"; break;
+            case "AED": currencySuffix = " درهم إماراتي"; break;
+            default: currencySuffix = " " + currency;
+        }
+        return `فقط ${words}${currencySuffix} لا غير`;
     }
 
     function updateCurrency() {
@@ -1032,6 +1102,9 @@
         const finalTotal = subtotal - payments;
         document.getElementById("invoice-final-total").innerText = finalTotal.toLocaleString("ar-EG") + getCurrencyLabelArabic(state.currency || "EGP");
         document.getElementById("invoice-final-total").setAttribute("data-raw-total", finalTotal);
+        
+        // Update written amount (Tafqeet)
+        document.getElementById("invoice-tafqeet-text").innerText = getTafqeetText(finalTotal, state.currency || "EGP");
     }
 
     // Render items list in the control panel editor
@@ -1291,6 +1364,7 @@
             });
             
             const finalTotalText = rawAmount.toLocaleString("ar-EG") + getCurrencyLabelArabic(state.currency || "EGP");
+            const tafqeetText = getTafqeetText(rawAmount, state.currency || "EGP");
             const formattedThankYou = state.thankYou.replace(/\n/g, "<br>");
             
             const cleanHtml = `<!DOCTYPE html>
@@ -1363,6 +1437,9 @@
         .invoice-container .total-section {
             border-top: 1px solid #000000 !important;
             border-bottom: 1px solid #000000 !important;
+        }
+        .invoice-container .tafqeet-text {
+            color: #555555 !important;
         }
         ` : ''}
 
@@ -1603,9 +1680,10 @@
             </tbody>
         </table>
 
-        <div class="total-section">
+        <div class="total-section" style="flex-wrap: wrap;">
             <div style="font-weight: bold; font-size: 18px;">اجمالي المبلغ المتبقي</div>
             <div style="font-weight: bold; font-size: 18px; color: var(--gold-color);">${finalTotalText}</div>
+            <div class="tafqeet-text" style="width: 100%; text-align: left; margin-top: 5px; font-size: 13px; color: var(--gold-color); font-style: italic; filter: brightness(0.95);">${tafqeetText}</div>
         </div>
         
         <div class="decor-diamonds">
